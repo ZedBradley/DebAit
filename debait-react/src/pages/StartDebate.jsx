@@ -1,217 +1,248 @@
 // src/pages/StartDebate.jsx
-import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
+import React, { useState } from "react";
 
 function StartDebate() {
-  const location = useLocation();
+  const API_KEY = import.meta.env.VITE_OPENAI_API_KEY;
 
   const [question, setQuestion] = useState("");
-  const [displayedQuestion, setDisplayedQuestion] = useState("");
   const [hasStarted, setHasStarted] = useState(false);
-
-  const [supportCount, setSupportCount] = useState(0);
-  const [noSupportCount, setNoSupportCount] = useState(0);
-  const [supportMessage, setSupportMessage] = useState("");
   const [roundNumber, setRoundNumber] = useState(0);
-  const [currentStance, setCurrentStance] = useState("");
-
-  const [followUpPrompt, setFollowUpPrompt] = useState("");
-  const [followUpText, setFollowUpText] = useState("");
   const [thread, setThread] = useState([]);
+  const [userInput, setUserInput] = useState("");
+  const [aiTyping, setAiTyping] = useState(false);
+  const [debateEnded, setDebateEnded] = useState(false);
+  const [feedback, setFeedback] = useState("");
 
-  // Read ?topic= from URL and prefill
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const topic = params.get("topic");
-    if (topic) {
-      setQuestion(topic);
-    }
-  }, [location.search]);
+  // ------------ AI REQUEST ------------
+  async function askOpenAI(prompt) {
+    const res = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${API_KEY}`
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
 
-  const handleAsk = () => {
-    const trimmed = question.trim();
-    setDisplayedQuestion(trimmed || "(No question entered yet.)");
+    const data = await res.json();
+    return data.choices?.[0]?.message?.content || "";
+  }
+
+  // ------------ START DEBATE ------------
+  async function startDebate() {
+    if (!question.trim()) return alert("Enter a debate question first.");
+
     setHasStarted(true);
-
-    // reset debate state
-    setSupportCount(0);
-    setNoSupportCount(0);
-    setSupportMessage("");
-    setRoundNumber(0);
-    setCurrentStance("");
-    setFollowUpPrompt("");
-    setFollowUpText("");
+    setDebateEnded(false);
     setThread([]);
-  };
+    setRoundNumber(1);
+    setFeedback("");
 
-  const generateAiReply = (userText, stance) => {
-    const supportReplies = [
-      "That's a thoughtful way to support the position. Another angle is to highlight long-term consequences or equity concerns.",
-      "You make a strong supporting point. It could be even stronger if you add a concrete example or statistic.",
-      "Your reasoning supports the claim well. You might also explain why alternatives are less convincing.",
-    ];
+    const prompt = `
+You are an aggressive debate opponent. 
+ALWAYS argue against the user's position.
+Keep responses under 200 words.
 
-    const opposeReplies = [
-      "Good pushback. To deepen your critique, you could question the assumptions behind the original argument.",
-      "You’ve identified a real weakness. Consider adding evidence or a counter-example to make it more persuasive.",
-      "Nice challenge to the claim. You might also suggest an alternative solution or middle ground.",
-    ];
+The user says: "${question}"
+Respond as Round 1 – AI, arguing AGAINST the user's stance.
+`;
 
-    const list = stance === "Support" ? supportReplies : opposeReplies;
-    const index = Math.floor(Math.random() * list.length);
-    return list[index];
-  };
+    setAiTyping(true);
+    const aiReply = await askOpenAI(prompt);
+    setAiTyping(false);
 
-  const handleSupportClick = (type) => {
-    if (!hasStarted) return;
+    setThread([
+      {
+        id: Date.now(),
+        round: 1,
+        author: "AI",
+        text: aiReply
+      }
+    ]);
+  }
 
-    if (type === "support") {
-      setSupportCount((c) => c + 1);
-      setSupportMessage("You chose to support this AI response.");
-      setCurrentStance("Support");
-      setFollowUpPrompt("Why do you support this response?");
-    } else {
-      setNoSupportCount((c) => c + 1);
-      setSupportMessage("You chose not to support this AI response.");
-      setCurrentStance("Do not support");
-      setFollowUpPrompt("What was missing or incorrect?");
-    }
-    setFollowUpText("");
-  };
+  // ------------ USER MOVE ------------
+  async function submitUserArgument() {
+    if (!userInput.trim()) return;
 
-  const handleFollowUpSubmit = () => {
-    const text = followUpText.trim();
-    if (!text || !currentStance) return;
+    const userText = userInput.trim();
+    setUserInput("");
 
+    // Add user entry
+    const newUserEntry = {
+      id: Date.now(),
+      round: roundNumber,
+      author: "You",
+      text: userText
+    };
+
+    setThread((prev) => [...prev, newUserEntry]);
+
+    // NEXT ROUND AI RESPONSE
     const nextRound = roundNumber + 1;
     setRoundNumber(nextRound);
 
-    const userEntry = {
-      id: Date.now() + "-user",
-      round: nextRound,
-      author: "You",
-      stance: currentStance,
-      text,
-    };
+    const aiPrompt = `
+Continue this debate. 
+Always argue directly AGAINST the user's newest argument.
 
-    const aiEntry = {
-      id: Date.now() + "-ai",
+User argument: "${userText}"
+
+Respond as "Round ${nextRound} – AI".
+Keep it short (<150 words).
+`;
+
+    setAiTyping(true);
+    const aiReply = await askOpenAI(aiPrompt);
+    setAiTyping(false);
+
+    const newAiEntry = {
+      id: Date.now() + 1,
       round: nextRound,
       author: "AI",
-      stance: "",
-      text: generateAiReply(text, currentStance),
+      text: aiReply
     };
 
-    setThread((prev) => [...prev, userEntry, aiEntry]);
-    setFollowUpPrompt("");
-    setFollowUpText("");
-  };
+    setThread((prev) => [...prev, newAiEntry]);
+  }
+
+  // ------------ END DEBATE BUTTON ------------
+  async function endDebateNow() {
+    setDebateEnded(true);
+
+    const allText = thread.map((t) => `${t.author}: ${t.text}`).join("\n");
+
+    const feedbackPrompt = `
+You are a debate judge.
+Give the user constructive feedback about their debate performance.
+Mention strengths, weaknesses, and how they can improve.
+Keep it under 200 words.
+
+Here is the debate:
+
+${allText}
+    `;
+
+    setAiTyping(true);
+    const judgeReply = await askOpenAI(feedbackPrompt);
+    setAiTyping(false);
+
+    setFeedback(judgeReply);
+  }
+
+  // ------------ RESET ------------
+  function resetDebate() {
+    setHasStarted(false);
+    setQuestion("");
+    setThread([]);
+    setRoundNumber(0);
+    setUserInput("");
+    setFeedback("");
+    setDebateEnded(false);
+  }
 
   return (
     <section className="section-card">
       <h2>Start a Debate</h2>
-      <p>Type a topic or question you want to debate with the AI.</p>
+      <p>Type a topic you want to debate with the AI.</p>
 
-      <textarea
-        id="debate-input"
-        placeholder="Example: Should college be free for all students?"
-        value={question}
-        onChange={(e) => setQuestion(e.target.value)}
-      />
-      <button id="ask-button" onClick={handleAsk}>
-        Ask AI (demo)
-      </button>
+      {/* INPUT */}
+      {!hasStarted && (
+        <>
+          <textarea
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            placeholder="Example: Should college be free?"
+          />
+          <br />
+          <button onClick={startDebate}>Start Debate</button>
+        </>
+      )}
 
-      <p className="small-text">
-        This is a demo version. It shows a placeholder AI message and lets you
-        build a short debate thread.
-      </p>
+      {/* END DEBATE BUTTON */}
+      {hasStarted && !debateEnded && (
+        <button
+          onClick={endDebateNow}
+          style={{
+            backgroundColor: "#ef4444",
+            color: "white",
+            marginLeft: "10px",
+            borderRadius: "8px",
+            padding: "8px 14px",
+            border: "none",
+            cursor: "pointer"
+          }}
+        >
+          End Debate
+        </button>
+      )}
 
-      {hasStarted && (
-        <div id="ai-response-box" className="ai-box">
-          <h3>AI response</h3>
-
-          <p className="small-text">
-            <strong>Your question:</strong> <span id="user-question">{displayedQuestion}</span>
-          </p>
-
-          <p className="ai-text">AI response coming soon.</p>
-
-          <div className="support-row">
-            <div className="support-buttons">
-              <button
-                className={
-                  "support-btn support-yes" +
-                  (currentStance === "Support" ? " selected" : "")
-                }
-                id="support-btn"
-                onClick={() => handleSupportClick("support")}
-              >
-                👍 Support
-              </button>
-              <button
-                className={
-                  "support-btn support-no" +
-                  (currentStance === "Do not support" ? " selected" : "")
-                }
-                id="nosupport-btn"
-                onClick={() => handleSupportClick("nosupport")}
-              >
-                👎 Do not support
-              </button>
+      {/* THREAD */}
+      {thread.length > 0 && (
+        <div className="ai-box" style={{ marginTop: "20px" }}>
+          {thread.map((entry) => (
+            <div
+              key={entry.id}
+              style={{
+                marginBottom: "12px",
+                background: entry.author === "AI" ? "#eef2ff" : "#ecfdf5",
+                padding: "12px",
+                borderRadius: "8px"
+              }}
+            >
+              <strong>
+                Round {entry.round} – {entry.author}
+              </strong>
+              <p>{entry.text}</p>
             </div>
-            <div className="support-counts small-text">
-              Supports: <span id="support-count">{supportCount}</span> • Do not
-              support: <span id="nosupport-count">{noSupportCount}</span>
-            </div>
-          </div>
+          ))}
+        </div>
+      )}
 
-          <p id="support-message" className="small-text">
-            {supportMessage}
-          </p>
+      {/* USER INPUT */}
+      {!debateEnded && hasStarted && (
+        <div style={{ marginTop: "20px" }}>
+          <textarea
+            placeholder="Write your next argument..."
+            value={userInput}
+            onChange={(e) => setUserInput(e.target.value)}
+          />
+          <button onClick={submitUserArgument} disabled={aiTyping}>
+            {aiTyping ? "AI thinking..." : "Submit Argument"}
+          </button>
+        </div>
+      )}
 
-          {/* Follow-up form */}
-          {followUpPrompt && (
-            <div style={{ marginTop: "10px" }}>
-              <p className="small-text">
-                <strong>{followUpPrompt}</strong>
-              </p>
-              <textarea
-                id="followup-input"
-                placeholder="Write your reasoning here..."
-                value={followUpText}
-                onChange={(e) => setFollowUpText(e.target.value)}
-              />
-              <button
-                id="submit-followup"
-                className="support-btn"
-                onClick={handleFollowUpSubmit}
-              >
-                Submit
-              </button>
-            </div>
-          )}
+      {/* FEEDBACK + END MESSAGE */}
+      {debateEnded && (
+        <div
+          style={{
+            marginTop: "20px",
+            padding: "16px",
+            background: "#fff7ed",
+            borderRadius: "8px"
+          }}
+        >
+          <h3>🔥 Debate Finished</h3>
+          <p>{feedback}</p>
 
-          {/* Debate thread */}
-          <div id="debate-thread" className="debate-thread">
-            {thread.map((entry) => (
-              <div
-                key={entry.id}
-                className={
-                  "debate-entry " +
-                  (entry.author === "AI" ? "ai-entry" : "user-entry")
-                }
-              >
-                <p className="small-text">
-                  <strong>
-                    Round {entry.round} – {entry.author}
-                    {entry.stance ? ` (${entry.stance})` : ""}
-                  </strong>
-                </p>
-                <p className="ai-text">{entry.text}</p>
-              </div>
-            ))}
-          </div>
+          <button
+            onClick={resetDebate}
+            style={{
+              backgroundColor: "#2563eb",
+              color: "white",
+              marginTop: "12px",
+              padding: "10px 18px",
+              borderRadius: "8px",
+              border: "none",
+              cursor: "pointer"
+            }}
+          >
+            Start New Debate
+          </button>
         </div>
       )}
     </section>
