@@ -438,6 +438,206 @@ button:active {
   border-left: 3px solid #4f46e5;
 }
 
+/* === Header layout tweak for toggle button === */
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.theme-toggle {
+  margin-top: 4px;
+  background: #e2e8f0;
+  color: #0f172a;
+  font-size: 0.8rem;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.08s ease;
+}
+
+.theme-toggle:hover {
+  background: #cbd5e1;
+  transform: translateY(-1px);
+}
+
+/* === Dark mode (black + purple) === */
+body.dark {
+  background: #020617; /* very dark slate/black */
+  color: #e5e7eb;
+}
+
+body.dark .page {
+  /* slightly less bright background inside */
+  background: #020617;
+}
+
+body.dark header {
+  border-bottom-color: #4b5563;
+}
+
+body.dark .logo span {
+  color: #a855f7; /* purple accent */
+}
+
+body.dark .tagline {
+  color: #9ca3af;
+}
+
+body.dark .tabs {
+  background: #111827;
+}
+
+body.dark .tab {
+  color: #e5e7eb;
+}
+
+body.dark .tab:hover {
+  background: #4c1d95; /* deep purple hover */
+}
+
+body.dark .tab.active {
+  background: #a855f7;
+  color: #0b1020;
+}
+
+/* Cards / sections */
+body.dark .section-card {
+  background: #020617;
+  border-color: #4b5563;
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0.0);
+}
+
+body.dark .section-card::before {
+  background: linear-gradient(to bottom, #a855f7, #4c1d95);
+}
+
+/* General text inside cards */
+body.dark .section-card h2,
+body.dark .section-card h3,
+body.dark .section-card p,
+body.dark .section-card li {
+  color: #e5e7eb;
+}
+
+/* Hero / badge */
+body.dark .badge {
+  background: #4c1d95;
+  color: #e5e7eb;
+}
+
+/* Links-as-buttons */
+body.dark .primary-link {
+  background: #a855f7;
+  color: #020617;
+}
+
+body.dark .primary-link:hover {
+  background: #9d4edd;
+}
+
+body.dark .secondary-link {
+  background: #111827;
+  color: #e5e7eb;
+}
+
+body.dark .secondary-link:hover {
+  background: #1f2937;
+}
+
+/* Topic cards on Explore */
+body.dark .topic-card {
+  background: #020617;
+  border-color: #4b5563;
+}
+
+body.dark .topic-card:hover {
+  border-color: #a855f7;
+  box-shadow: 0 10px 18px rgba(88, 28, 135, 0.4);
+}
+
+body.dark .topic-btn {
+  background: #a855f7;
+  color: #020617;
+}
+
+body.dark .topic-btn:hover {
+  background: #9d4edd;
+}
+
+/* Textareas / inputs */
+body.dark textarea {
+  background: #020617;
+  color: #e5e7eb;
+  border-color: #4b5563;
+}
+
+body.dark textarea:focus {
+  border-color: #a855f7;
+  box-shadow: 0 0 0 1px #a855f7;
+}
+
+/* Buttons (global) */
+body.dark button {
+  background: #a855f7;
+  color: #020617;
+}
+
+body.dark button:hover {
+  background: #9d4edd;
+  box-shadow: 0 6px 12px rgba(168, 85, 247, 0.35);
+}
+
+/* Theme toggle in dark mode */
+body.dark .theme-toggle {
+  background: #111827;
+  color: #e5e7eb;
+}
+
+body.dark .theme-toggle:hover {
+  background: #1f2937;
+}
+
+/* AI box + debate thread */
+body.dark .ai-box {
+  background: #020617;
+  border-color: #4b5563;
+}
+
+body.dark .user-entry {
+  background: #111827;
+  border-color: #4b5563;
+}
+
+body.dark .ai-entry {
+  background: #1f1039;
+  border-color: #4b5563;
+  border-left-color: #a855f7;
+}
+
+/* Support buttons */
+body.dark .support-btn {
+  background: #111827;
+  color: #e5e7eb;
+}
+
+body.dark .support-btn:hover {
+  background: #1f2937;
+}
+
+body.dark .support-btn.selected.support-yes {
+  background: #22c55e;
+  color: #020617;
+}
+
+body.dark .support-btn.selected.support-no {
+  background: #ef4444;
+  color: #020617;
+}
+
+
 /* === Responsive tweaks === */
 @media (max-width: 640px) {
   .page {

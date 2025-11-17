@@ -2,17 +2,24 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
 
-function Header() {
-  const tabClass = ({ isActive }) =>
-    "tab" + (isActive ? " active" : "");
+function Header({ darkMode, toggleDarkMode }) {
+  const tabClass = ({ isActive }) => "tab" + (isActive ? " active" : "");
 
   return (
     <header>
-      <div className="logo">
-        Deb<span>AI</span>t
-      </div>
-      <div className="tagline">
-        Debate with AI. Practice critical thinking. See both sides.
+      <div className="header-top">
+        <div>
+          <div className="logo">
+            Deb<span>AI</span>t
+          </div>
+          <div className="tagline">
+            Debate with AI. Practice critical thinking. See both sides.
+          </div>
+        </div>
+
+        <button className="theme-toggle" onClick={toggleDarkMode}>
+          {darkMode ? "☀️ Light" : "🌙 Dark"}
+        </button>
       </div>
 
       <nav className="tabs">
