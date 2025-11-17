@@ -1,20 +1,17 @@
-// Import the functions you need from the SDKs you need
+// src/firebaseConfig.ts
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
-// Your web app's Firebase configuration
+// Replace these values with your actual Firebase project config
 const firebaseConfig = {
-  apiKey: "AIzaSyDIce5MFZ2uRip7pVrZ6AiD8qoaN0lUWN4",
-  authDomain: "myaiapp-8f339.firebaseapp.com",
-  projectId: "myaiapp-8f339",
-  storageBucket: "myaiapp-8f339.appspot.com",
-  messagingSenderId: "478426083764",
-  appId: "1:478426083764:web:8382f4e94d808e658082e1",
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_BUCKET",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID",
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-
-// Export them so you can import elsewhere
-export { app, auth };
+export const app = initializeApp(firebaseConfig);
+export const auth = getAuth(app);
