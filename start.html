@@ -73,17 +73,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const supportCountSpan = document.getElementById('support-count');
     const noSupportCountSpan = document.getElementById('nosupport-count');
 
+    const followUpContainer = document.createElement("div");
+    followUpContainer.style.marginTop = "10px";
+    followUpContainer.style.display = "none";
+    aiBox.appendChild(followUpContainer);
+
     let supportCount = 0;
     let noSupportCount = 0;
 
-    // When the user clicks "Ask AI"
     askButton.addEventListener('click', () => {
         const question = input.value.trim();
-
-        // Show box even if empty, but give a simple fallback
         userQuestionSpan.textContent = question || "(No question entered yet.)";
 
-        // Reset counts and message each time
         supportCount = 0;
         noSupportCount = 0;
         supportCountSpan.textContent = supportCount;
@@ -91,28 +92,49 @@ document.addEventListener('DOMContentLoaded', () => {
         supportMessage.textContent = "";
         supportBtn.classList.remove('selected');
         noSupportBtn.classList.remove('selected');
+        followUpContainer.style.display = "none";
+        followUpContainer.innerHTML = "";
 
         aiBox.style.display = 'block';
     });
 
-    // When user supports the AI response
+    function showFollowUp(questionText) {
+        followUpContainer.style.display = "block";
+        followUpContainer.innerHTML = `
+            <textarea id="followup-input" placeholder="${questionText}"></textarea>
+            <button id="submit-followup" class="support-btn">Submit</button>
+        `;
+
+        document.getElementById('submit-followup').addEventListener('click', () => {
+            const answer = document.getElementById('followup-input').value.trim();
+            if (answer.length > 0) {
+                followUpContainer.innerHTML = `
+                    <p class="small-text"><strong>Your explanation:</strong></p>
+                    <p class="ai-text">${answer}</p>
+                `;
+            }
+        });
+    }
+
     supportBtn.addEventListener('click', () => {
         supportCount++;
         supportCountSpan.textContent = supportCount;
         supportMessage.textContent = "You chose to support this AI response.";
         supportBtn.classList.add('selected');
         noSupportBtn.classList.remove('selected');
+        showFollowUp("Why do you support this response?");
     });
 
-    // When user does NOT support the AI response
     noSupportBtn.addEventListener('click', () => {
         noSupportCount++;
         noSupportCountSpan.textContent = noSupportCount;
         supportMessage.textContent = "You chose not to support this AI response.";
         noSupportBtn.classList.add('selected');
         supportBtn.classList.remove('selected');
+        showFollowUp("What was missing or incorrect?");
     });
 });
 </script>
+
 </body>
 </html>
