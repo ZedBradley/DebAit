@@ -344,24 +344,73 @@ button:active {
     margin-bottom: 6px;
 }
 
+.ai-text {
+    margin-top: 6px;
+    font-size: 0.95rem;
+}
+
+.support-row {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    justify-content: space-between;
+}
+
 .support-buttons {
-    margin-top: 8px;
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
 }
 
-/* Support buttons use existing button styles but with lighter look */
+/* Base style for support buttons */
 .support-btn {
     background: #e2e8f0;
     color: #0f172a;
     box-shadow: none;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    transition: background 0.12s ease, transform 0.08s ease, box-shadow 0.12s ease;
 }
 
 .support-btn:hover {
     background: #cbd5e1;
-    color: #0f172a;
+    transform: translateY(-1px);
 }
+
+/* Yes / No variants */
+.support-yes {
+    border: 1px solid #bbf7d0;
+}
+
+.support-no {
+    border: 1px solid #fecaca;
+}
+
+/* Selected state */
+.support-btn.selected.support-yes {
+    background: #22c55e;
+    color: #ffffff;
+    box-shadow: 0 4px 10px rgba(34, 197, 94, 0.3);
+}
+
+.support-btn.selected.support-no {
+    background: #ef4444;
+    color: #ffffff;
+    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);
+}
+
+.support-counts {
+    text-align: right;
+}
+
 
 
 /* === Responsive tweaks === */

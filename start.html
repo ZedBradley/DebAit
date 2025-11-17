@@ -27,17 +27,31 @@
         <button id="ask-button">Ask AI (demo)</button>
 
         <p class="small-text">
-            This is a demo version. For now, it just shows a placeholder message.
+            This is a demo version. For now, it shows a placeholder message and lets you react to it.
         </p>
 
         <!-- Simple AI response placeholder -->
         <div id="ai-response-box" class="ai-box" style="display: none;">
             <h3>AI response</h3>
-            <p>AI response coming soon.</p>
 
-            <div class="support-buttons">
-                <button class="support-btn" id="support-btn">Support</button>
-                <button class="support-btn" id="nosupport-btn">Do not support</button>
+            <p class="small-text">
+                <strong>Your question:</strong>
+                <span id="user-question"></span>
+            </p>
+
+            <p class="ai-text">
+                AI response coming soon.
+            </p>
+
+            <div class="support-row">
+                <div class="support-buttons">
+                    <button class="support-btn support-yes" id="support-btn">👍 Support</button>
+                    <button class="support-btn support-no" id="nosupport-btn">👎 Do not support</button>
+                </div>
+                <div class="support-counts small-text">
+                    Supports: <span id="support-count">0</span> •
+                    Do not support: <span id="nosupport-count">0</span>
+                </div>
             </div>
 
             <p id="support-message" class="small-text"></p>
@@ -49,26 +63,54 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const askButton = document.getElementById('ask-button');
+    const input = document.getElementById('debate-input');
     const aiBox = document.getElementById('ai-response-box');
+    const userQuestionSpan = document.getElementById('user-question');
+
     const supportBtn = document.getElementById('support-btn');
     const noSupportBtn = document.getElementById('nosupport-btn');
     const supportMessage = document.getElementById('support-message');
+    const supportCountSpan = document.getElementById('support-count');
+    const noSupportCountSpan = document.getElementById('nosupport-count');
+
+    let supportCount = 0;
+    let noSupportCount = 0;
 
     // When the user clicks "Ask AI"
     askButton.addEventListener('click', () => {
-        // Just show the placeholder box – no real AI yet
+        const question = input.value.trim();
+
+        // Show box even if empty, but give a simple fallback
+        userQuestionSpan.textContent = question || "(No question entered yet.)";
+
+        // Reset counts and message each time
+        supportCount = 0;
+        noSupportCount = 0;
+        supportCountSpan.textContent = supportCount;
+        noSupportCountSpan.textContent = noSupportCount;
+        supportMessage.textContent = "";
+        supportBtn.classList.remove('selected');
+        noSupportBtn.classList.remove('selected');
+
         aiBox.style.display = 'block';
-        supportMessage.textContent = ""; // clear old choice
     });
 
     // When user supports the AI response
     supportBtn.addEventListener('click', () => {
+        supportCount++;
+        supportCountSpan.textContent = supportCount;
         supportMessage.textContent = "You chose to support this AI response.";
+        supportBtn.classList.add('selected');
+        noSupportBtn.classList.remove('selected');
     });
 
     // When user does NOT support the AI response
     noSupportBtn.addEventListener('click', () => {
+        noSupportCount++;
+        noSupportCountSpan.textContent = noSupportCount;
         supportMessage.textContent = "You chose not to support this AI response.";
+        noSupportBtn.classList.add('selected');
+        supportBtn.classList.remove('selected');
     });
 });
 </script>
