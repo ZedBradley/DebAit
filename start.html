@@ -73,6 +73,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const supportCountSpan = document.getElementById('support-count');
     const noSupportCountSpan = document.getElementById('nosupport-count');
 
+    // 🔹 NEW: read ?topic=... from URL and prefill the textarea
+    const params = new URLSearchParams(window.location.search);
+    const topicFromUrl = params.get('topic');
+    if (topicFromUrl) {
+        input.value = topicFromUrl;
+    }
+
+    // Container for follow-up question
     const followUpContainer = document.createElement("div");
     followUpContainer.style.marginTop = "10px";
     followUpContainer.style.display = "none";
@@ -81,10 +89,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let supportCount = 0;
     let noSupportCount = 0;
 
+    // When the user clicks "Ask AI"
     askButton.addEventListener('click', () => {
         const question = input.value.trim();
         userQuestionSpan.textContent = question || "(No question entered yet.)";
 
+        // reset state
         supportCount = 0;
         noSupportCount = 0;
         supportCountSpan.textContent = supportCount;
@@ -135,6 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 </script>
+
 
 </body>
 </html>
