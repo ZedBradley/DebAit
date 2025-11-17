@@ -22,12 +22,55 @@
     <section class="section-card">
         <h2>Start a Debate</h2>
         <p>Type a topic or question you want to debate with the AI.</p>
-        <textarea placeholder="Example: Should college be free for all students?"></textarea>
-        <button>Ask AI (coming soon)</button>
+
+        <textarea id="debate-input" placeholder="Example: Should college be free for all students?"></textarea>
+        <button id="ask-button">Ask AI (demo)</button>
+
         <p class="small-text">
-            In the future, this button will send your question to the AI and show a response below.
+            This is a demo version. For now, it just shows a placeholder message.
         </p>
+
+        <!-- Simple AI response placeholder -->
+        <div id="ai-response-box" class="ai-box" style="display: none;">
+            <h3>AI response</h3>
+            <p>AI response coming soon.</p>
+
+            <div class="support-buttons">
+                <button class="support-btn" id="support-btn">Support</button>
+                <button class="support-btn" id="nosupport-btn">Do not support</button>
+            </div>
+
+            <p id="support-message" class="small-text"></p>
+        </div>
     </section>
 </div>
+
+<!-- Simple script for showing the placeholder + support choice -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const askButton = document.getElementById('ask-button');
+    const aiBox = document.getElementById('ai-response-box');
+    const supportBtn = document.getElementById('support-btn');
+    const noSupportBtn = document.getElementById('nosupport-btn');
+    const supportMessage = document.getElementById('support-message');
+
+    // When the user clicks "Ask AI"
+    askButton.addEventListener('click', () => {
+        // Just show the placeholder box – no real AI yet
+        aiBox.style.display = 'block';
+        supportMessage.textContent = ""; // clear old choice
+    });
+
+    // When user supports the AI response
+    supportBtn.addEventListener('click', () => {
+        supportMessage.textContent = "You chose to support this AI response.";
+    });
+
+    // When user does NOT support the AI response
+    noSupportBtn.addEventListener('click', () => {
+        supportMessage.textContent = "You chose not to support this AI response.";
+    });
+});
+</script>
 </body>
 </html>

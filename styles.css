@@ -330,6 +330,40 @@ button:active {
     background: #1e40af;
 }
 
+/* === Start page: AI response placeholder === */
+.ai-box {
+    margin-top: 14px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    border: 1px dashed #cbd5e1;
+    background: #f8fafc;
+}
+
+.ai-box h3 {
+    font-size: 1rem;
+    margin-bottom: 6px;
+}
+
+.support-buttons {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* Support buttons use existing button styles but with lighter look */
+.support-btn {
+    background: #e2e8f0;
+    color: #0f172a;
+    box-shadow: none;
+}
+
+.support-btn:hover {
+    background: #cbd5e1;
+    color: #0f172a;
+}
+
+
 /* === Responsive tweaks === */
 @media (max-width: 640px) {
     .page {
