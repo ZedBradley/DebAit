@@ -13,7 +13,7 @@
 
         <nav class="tabs">
             <a href="index.html" class="tab">Home</a>
-            <a href="start.html" class="tab active">Start Debate</h3>
+            <a href="start.html" class="tab active">Start Debate</a>
             <a href="explore.html" class="tab">Explore Debates</a>
             <a href="about.html" class="tab">About</a>
         </nav>
@@ -27,10 +27,10 @@
         <button id="ask-button">Ask AI (demo)</button>
 
         <p class="small-text">
-            This is a demo version. For now, it shows a placeholder message and lets you react to it.
+            This is a demo version. It shows a placeholder AI message and lets you build a short debate thread.
         </p>
 
-        <!-- Simple AI response placeholder -->
+        <!-- AI response placeholder + thread -->
         <div id="ai-response-box" class="ai-box" style="display: none;">
             <h3>AI response</h3>
 
@@ -56,7 +56,7 @@
 
             <p id="support-message" class="small-text"></p>
 
-            <!-- New: ongoing debate thread (multiple rounds) -->
+            <!-- Ongoing debate thread -->
             <div id="debate-thread" class="debate-thread"></div>
         </div>
     </section>
@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
         input.value = topicFromUrl;
     }
 
-    // Follow-up form container (we'll reuse it for each round)
+    // Follow-up form container (reused for each round)
     const followUpContainer = document.createElement("div");
     followUpContainer.style.marginTop = "10px";
     followUpContainer.style.display = "none";
@@ -115,6 +115,25 @@ document.addEventListener('DOMContentLoaded', () => {
         aiBox.style.display = 'block';
     });
 
+    // Simple fake AI reply generator
+    function generateAiReply(userText, stance) {
+        const baseReplySupport = [
+            "That's a thoughtful way to support the position. Another angle is to highlight long-term consequences or equity concerns.",
+            "You make a strong supporting point. It could be even stronger if you add a concrete example or statistic.",
+            "Your reasoning supports the claim well. You might also explain why alternatives are less convincing."
+        ];
+
+        const baseReplyOppose = [
+            "Good pushback. To deepen your critique, you could question the assumptions behind the original argument.",
+            "You’ve identified a real weakness. Consider adding evidence or a counter-example to make it more persuasive.",
+            "Nice challenge to the claim. You might also suggest an alternative solution or middle ground."
+        ];
+
+        const list = stance === "Support" ? baseReplySupport : baseReplyOppose;
+        const index = Math.floor(Math.random() * list.length);
+        return list[index];
+    }
+
     function showFollowUp(questionText) {
         followUpContainer.style.display = "block";
         followUpContainer.innerHTML = `
@@ -128,14 +147,24 @@ document.addEventListener('DOMContentLoaded', () => {
             if (answer.length > 0) {
                 roundNumber++;
 
-                // Create a new entry in the debate thread
+                // Your entry
                 const entry = document.createElement("div");
-                entry.className = "debate-entry";
+                entry.className = "debate-entry user-entry";
                 entry.innerHTML = `
-                    <p class="small-text"><strong>Round ${roundNumber} – ${currentStance}</strong></p>
+                    <p class="small-text"><strong>Round ${roundNumber} – You (${currentStance})</strong></p>
                     <p class="ai-text">${answer}</p>
                 `;
                 threadContainer.appendChild(entry);
+
+                // AI reply entry
+                const aiReplyText = generateAiReply(answer, currentStance);
+                const aiEntry = document.createElement("div");
+                aiEntry.className = "debate-entry ai-entry";
+                aiEntry.innerHTML = `
+                    <p class="small-text"><strong>Round ${roundNumber} – AI</strong></p>
+                    <p class="ai-text">${aiReplyText}</p>
+                `;
+                threadContainer.appendChild(aiEntry);
 
                 // Hide and clear the follow-up form so they can click buttons again
                 followUpContainer.style.display = "none";

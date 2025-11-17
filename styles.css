@@ -424,6 +424,15 @@ button:active {
     background: #f1f5f9;
     border: 1px solid #e2e8f0;
 }
+.user-entry {
+    background: #f1f5f9;
+}
+
+.ai-entry {
+    background: #eef2ff;
+    border-left: 3px solid #4f46e5;
+}
+
 
 
 
