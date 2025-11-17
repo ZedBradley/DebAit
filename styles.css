@@ -411,6 +411,21 @@ button:active {
     text-align: right;
 }
 
+.debate-thread {
+    margin-top: 12px;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 8px;
+}
+
+.debate-entry {
+    margin-bottom: 10px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+}
+
+
 
 
 /* === Responsive tweaks === */

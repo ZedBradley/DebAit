@@ -13,7 +13,7 @@
 
         <nav class="tabs">
             <a href="index.html" class="tab">Home</a>
-            <a href="start.html" class="tab active">Start Debate</a>
+            <a href="start.html" class="tab active">Start Debate</h3>
             <a href="explore.html" class="tab">Explore Debates</a>
             <a href="about.html" class="tab">About</a>
         </nav>
@@ -55,11 +55,13 @@
             </div>
 
             <p id="support-message" class="small-text"></p>
+
+            <!-- New: ongoing debate thread (multiple rounds) -->
+            <div id="debate-thread" class="debate-thread"></div>
         </div>
     </section>
 </div>
 
-<!-- Simple script for showing the placeholder + support choice -->
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const askButton = document.getElementById('ask-button');
@@ -72,15 +74,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const supportMessage = document.getElementById('support-message');
     const supportCountSpan = document.getElementById('support-count');
     const noSupportCountSpan = document.getElementById('nosupport-count');
+    const threadContainer = document.getElementById('debate-thread');
 
-    // 🔹 NEW: read ?topic=... from URL and prefill the textarea
+    // Read ?topic=... from URL (from Explore page) and prefill the textarea
     const params = new URLSearchParams(window.location.search);
     const topicFromUrl = params.get('topic');
     if (topicFromUrl) {
         input.value = topicFromUrl;
     }
 
-    // Container for follow-up question
+    // Follow-up form container (we'll reuse it for each round)
     const followUpContainer = document.createElement("div");
     followUpContainer.style.marginTop = "10px";
     followUpContainer.style.display = "none";
@@ -88,15 +91,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let supportCount = 0;
     let noSupportCount = 0;
+    let roundNumber = 0;
+    let currentStance = ""; // "Support" or "Do not support"
 
     // When the user clicks "Ask AI"
     askButton.addEventListener('click', () => {
         const question = input.value.trim();
         userQuestionSpan.textContent = question || "(No question entered yet.)";
 
-        // reset state
+        // Reset state for a fresh debate
         supportCount = 0;
         noSupportCount = 0;
+        roundNumber = 0;
         supportCountSpan.textContent = supportCount;
         noSupportCountSpan.textContent = noSupportCount;
         supportMessage.textContent = "";
@@ -104,6 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
         noSupportBtn.classList.remove('selected');
         followUpContainer.style.display = "none";
         followUpContainer.innerHTML = "";
+        threadContainer.innerHTML = ""; // clear previous rounds
 
         aiBox.style.display = 'block';
     });
@@ -111,41 +118,54 @@ document.addEventListener('DOMContentLoaded', () => {
     function showFollowUp(questionText) {
         followUpContainer.style.display = "block";
         followUpContainer.innerHTML = `
-            <textarea id="followup-input" placeholder="${questionText}"></textarea>
+            <p class="small-text"><strong>${questionText}</strong></p>
+            <textarea id="followup-input" placeholder="Write your reasoning here..."></textarea>
             <button id="submit-followup" class="support-btn">Submit</button>
         `;
 
         document.getElementById('submit-followup').addEventListener('click', () => {
             const answer = document.getElementById('followup-input').value.trim();
             if (answer.length > 0) {
-                followUpContainer.innerHTML = `
-                    <p class="small-text"><strong>Your explanation:</strong></p>
+                roundNumber++;
+
+                // Create a new entry in the debate thread
+                const entry = document.createElement("div");
+                entry.className = "debate-entry";
+                entry.innerHTML = `
+                    <p class="small-text"><strong>Round ${roundNumber} – ${currentStance}</strong></p>
                     <p class="ai-text">${answer}</p>
                 `;
+                threadContainer.appendChild(entry);
+
+                // Hide and clear the follow-up form so they can click buttons again
+                followUpContainer.style.display = "none";
+                followUpContainer.innerHTML = "";
             }
         });
     }
 
+    // When user supports the AI response
     supportBtn.addEventListener('click', () => {
         supportCount++;
         supportCountSpan.textContent = supportCount;
         supportMessage.textContent = "You chose to support this AI response.";
         supportBtn.classList.add('selected');
         noSupportBtn.classList.remove('selected');
+        currentStance = "Support";
         showFollowUp("Why do you support this response?");
     });
 
+    // When user does NOT support the AI response
     noSupportBtn.addEventListener('click', () => {
         noSupportCount++;
         noSupportCountSpan.textContent = noSupportCount;
         supportMessage.textContent = "You chose not to support this AI response.";
         noSupportBtn.classList.add('selected');
         supportBtn.classList.remove('selected');
+        currentStance = "Do not support";
         showFollowUp("What was missing or incorrect?");
     });
 });
 </script>
-
-
 </body>
 </html>
