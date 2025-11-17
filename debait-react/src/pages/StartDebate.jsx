@@ -12,18 +12,15 @@ function StartDebate() {
   const [aiTyping, setAiTyping] = useState(false);
   const [debateEnded, setDebateEnded] = useState(false);
   const [feedback, setFeedback] = useState("");
+  const [stance, setStance] = useState({});
 
-  // track support/don't support
-  const [stance, setStance] = useState({}); // { round: "support" or "oppose" }
-
-  // ------------ WORD LIMIT ENFORCER ------------
+  // ---------------- WORD LIMIT ----------------
   function trimTo200Words(text) {
     const words = text.split(/\s+/);
-    if (words.length <= 200) return text;
-    return words.slice(0, 200).join(" ") + "...";
+    return words.length <= 200 ? text : words.slice(0, 200).join(" ") + "...";
   }
 
-  // ------------ AI REQUEST ------------
+  // ---------------- AI REQUEST ----------------
   async function askOpenAI(prompt) {
     const res = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
@@ -42,7 +39,7 @@ function StartDebate() {
     return trimTo200Words(reply);
   }
 
-  // ------------ START DEBATE ------------
+  // ---------------- START DEBATE ----------------
   async function startDebate() {
     if (!question.trim()) return alert("Enter a debate question first.");
 
@@ -54,12 +51,12 @@ function StartDebate() {
     setStance({});
 
     const prompt = `
-You are an aggressive debate opponent. 
-ALWAYS argue against the user's position.
-Your response MUST be under 200 words.
+You are an aggressive debate opponent.
+Always argue against the user.
+Response MUST be under 200 words.
 
-The user says: "${question}"
-Respond as Round 1 – AI, arguing AGAINST the user.
+User topic: "${question}"
+Give Round 1 – AI response.
 `;
 
     setAiTyping(true);
@@ -67,16 +64,11 @@ Respond as Round 1 – AI, arguing AGAINST the user.
     setAiTyping(false);
 
     setThread([
-      {
-        id: Date.now(),
-        round: 1,
-        author: "AI",
-        text: aiReply
-      }
+      { id: Date.now(), round: 1, author: "AI", text: aiReply }
     ]);
   }
 
-  // ------------ USER ARGUMENT ------------
+  // ---------------- USER ARGUMENT ----------------
   async function submitUserArgument() {
     if (!userInput.trim()) return;
 
@@ -92,54 +84,48 @@ Respond as Round 1 – AI, arguing AGAINST the user.
 
     setThread((prev) => [...prev, newUserEntry]);
 
-    // NEXT ROUND
     const nextRound = roundNumber + 1;
     setRoundNumber(nextRound);
 
     const aiPrompt = `
-Continue the debate. 
-Always argue AGAINST the user's new argument.
-Response MUST be under 200 words.
+Continue this debate.
+Always argue AGAINST the user's argument.
+Response must be under 200 words.
 
-User argument: "${userText}"
-
-Respond as "Round ${nextRound} – AI".
+User said: "${userText}"
+Respond as Round ${nextRound} – AI.
 `;
 
     setAiTyping(true);
     const aiReply = await askOpenAI(aiPrompt);
     setAiTyping(false);
 
-    const newAiEntry = {
-      id: Date.now() + 1,
-      round: nextRound,
-      author: "AI",
-      text: aiReply
-    };
-
-    setThread((prev) => [...prev, newAiEntry]);
+    setThread((prev) => [
+      ...prev,
+      { id: Date.now() + 1, round: nextRound, author: "AI", text: aiReply }
+    ]);
   }
 
-  // ------------ SUPPORT / DON'T SUPPORT SELECTION ------------
+  // ---------------- SUPPORT BUTTONS ----------------
   function chooseStance(round, choice) {
     setStance((prev) => ({ ...prev, [round]: choice }));
   }
 
-  // ------------ END DEBATE ------------
+  // ---------------- END DEBATE ----------------
   async function endDebateNow() {
     setDebateEnded(true);
 
-    const allText = thread.map((t) => `${t.author}: ${t.text}`).join("\n");
+    const allText = thread.map((t) => `${t.author}: ${t.text}`).join("\n\n");
 
     const feedbackPrompt = `
 You are a debate judge.
-Give the user constructive feedback on their debate.
-Mention strengths, weaknesses, and improvements.
-MUST be under 200 words.
+Give constructive feedback.
+Mention strengths, weaknesses, improvement.
+Under 200 words.
 
-Debate transcript:
+Debate Transcript:
 ${allText}
-    `;
+`;
 
     setAiTyping(true);
     const judgeReply = await askOpenAI(feedbackPrompt);
@@ -148,16 +134,16 @@ ${allText}
     setFeedback(judgeReply);
   }
 
-  // ------------ RESET ------------
+  // ---------------- RESET ----------------
   function resetDebate() {
     setHasStarted(false);
     setQuestion("");
     setThread([]);
-    setRoundNumber(0);
     setUserInput("");
     setFeedback("");
     setDebateEnded(false);
     setStance({});
+    setRoundNumber(0);
   }
 
   return (
@@ -165,7 +151,7 @@ ${allText}
       <h2>Start a Debate</h2>
       <p>Type a topic you want to debate with the AI.</p>
 
-      {/* INPUT */}
+      {/* START INPUT */}
       {!hasStarted && (
         <>
           <textarea
@@ -173,7 +159,6 @@ ${allText}
             onChange={(e) => setQuestion(e.target.value)}
             placeholder="Example: Should college be free?"
           />
-          <br />
           <button onClick={startDebate}>Start Debate</button>
         </>
       )}
@@ -182,15 +167,7 @@ ${allText}
       {hasStarted && !debateEnded && (
         <button
           onClick={endDebateNow}
-          style={{
-            backgroundColor: "#ef4444",
-            color: "white",
-            marginLeft: "10px",
-            borderRadius: "8px",
-            padding: "8px 14px",
-            border: "none",
-            cursor: "pointer"
-          }}
+          className="end-btn"
         >
           End Debate
         </button>
@@ -198,51 +175,38 @@ ${allText}
 
       {/* THREAD */}
       {thread.length > 0 && (
-        <div className="ai-box" style={{ marginTop: "20px" }}>
+        <div className="ai-box">
           {thread.map((entry) => (
             <div
               key={entry.id}
-              style={{
-                marginBottom: "14px",
-                background: entry.author === "AI" ? "#eef2ff" : "#ecfdf5",
-                padding: "12px",
-                borderRadius: "8px"
-              }}
+              className={`debate-entry ${
+                entry.author === "AI" ? "ai-entry" : "user-entry"
+              }`}
             >
               <strong>
                 Round {entry.round} – {entry.author}
               </strong>
               <p>{entry.text}</p>
 
-              {/* SUPPORT / DON'T SUPPORT buttons ONLY under AI messages */}
+              {/* SUPPORT / DON'T SUPPORT under AI only */}
               {entry.author === "AI" && !debateEnded && (
-                <div style={{ marginTop: "10px", display: "flex", gap: "10px" }}>
+                <div className="support-row">
                   <button
                     onClick={() => chooseStance(entry.round, "support")}
-                    style={{
-                      padding: "8px 12px",
-                      borderRadius: "8px",
-                      border: "none",
-                      cursor: "pointer",
-                      backgroundColor:
-                        stance[entry.round] === "support" ? "#22c55e" : "#bbf7d0"
-                    }}
+                    className={`support-btn support-yes ${
+                      stance[entry.round] === "support" ? "selected" : ""
+                    }`}
                   >
-                    Support
+                    👍 Support
                   </button>
 
                   <button
                     onClick={() => chooseStance(entry.round, "oppose")}
-                    style={{
-                      padding: "8px 12px",
-                      borderRadius: "8px",
-                      border: "none",
-                      cursor: "pointer",
-                      backgroundColor:
-                        stance[entry.round] === "oppose" ? "#ef4444" : "#fecaca"
-                    }}
+                    className={`support-btn support-no ${
+                      stance[entry.round] === "oppose" ? "selected" : ""
+                    }`}
                   >
-                    Don’t Support
+                    👎 Don’t Support
                   </button>
                 </div>
               )}
@@ -253,7 +217,7 @@ ${allText}
 
       {/* USER INPUT */}
       {!debateEnded && hasStarted && (
-        <div style={{ marginTop: "20px" }}>
+        <div className="user-input-block">
           <textarea
             placeholder="Write your next argument..."
             value={userInput}
@@ -267,29 +231,11 @@ ${allText}
 
       {/* FEEDBACK */}
       {debateEnded && (
-        <div
-          style={{
-            marginTop: "20px",
-            padding: "16px",
-            background: "#fff7ed",
-            borderRadius: "8px"
-          }}
-        >
+        <div className="feedback-box">
           <h3>🔥 Debate Finished</h3>
           <p>{feedback}</p>
 
-          <button
-            onClick={resetDebate}
-            style={{
-              backgroundColor: "#2563eb",
-              color: "white",
-              marginTop: "12px",
-              padding: "10px 18px",
-              borderRadius: "8px",
-              border: "none",
-              cursor: "pointer"
-            }}
-          >
+          <button onClick={resetDebate}>
             Start New Debate
           </button>
         </div>
