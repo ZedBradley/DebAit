@@ -1,79 +1,219 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <head>
     <meta charset="UTF-8">
     <title>DebAIt – Debate with AI</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f5f5f5;
-            max-width: 800px;
-            margin: auto;
-            padding: 20px;
+        /* Basic page setup */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         }
-        h1 {
+
+        body {
+            background: #f5f5f5;
+            color: #111827;
+        }
+
+        .page {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+
+        /* Header + logo */
+        header {
+            margin-bottom: 16px;
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 1.8rem;
+            letter-spacing: 0.05em;
+        }
+
+        .logo span {
             color: #2563eb;
         }
+
+        .tagline {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+
+        /* Tabs navigation */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-top: 16px;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 4px;
+            overflow-x: auto;
+        }
+
+        .tab {
+            padding: 8px 14px;
+            border-radius: 999px 999px 0 0;
+            text-decoration: none;
+            font-size: 0.9rem;
+            background: #e5e7eb;
+            color: #374151;
+            white-space: nowrap;
+        }
+
+        .tab:hover {
+            background: #d1d5db;
+        }
+
+        /* Home is “default active” visually */
+        .tab.home-tab {
+            background: #2563eb;
+            color: #ffffff;
+        }
+
+        /* Card sections */
+        .section-card {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 16px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+        }
+
+        .section-card h2 {
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .section-card p {
+            margin-bottom: 6px;
+            font-size: 0.95rem;
+        }
+
         textarea {
             width: 100%;
-            padding: 8px;
+            min-height: 80px;
+            resize: vertical;
+            padding: 8px 10px;
+            border-radius: 8px;
+            border: 1px solid #d4d4d8;
+            margin-top: 8px;
         }
+
         button {
-            padding: 8px 16px;
-            background: #2563eb;
-            color: white;
+            margin-top: 8px;
+            padding: 8px 14px;
+            border-radius: 999px;
             border: none;
             cursor: pointer;
+            background: #2563eb;
+            color: #ffffff;
+            font-size: 0.9rem;
         }
+
         button:hover {
-            background: #1e4fc9;
+            background: #1d4ed8;
         }
-        .section {
-            background: white;
-            padding: 16px;
-            margin-top: 14px;
-            border-radius: 8px;
+
+        ul {
+            margin-top: 6px;
+            padding-left: 18px;
+        }
+
+        ul li {
+            font-size: 0.9rem;
+            margin-bottom: 4px;
+        }
+
+        .small-text {
+            font-size: 0.85rem;
+            color: #6b7280;
         }
     </style>
 </head>
-
-</head>
 <body>
-    <body>
-    <div class="section">
-        <h1>DebAIt</h1>
-        <p><em>Debate with AI — think critically, learn fairly.</em></p>
-    </div>
+<div class="page">
+    <!-- Top: Logo + tagline -->
+    <header>
+        <div class="logo">DebA<span>It</span></div>
+        <div class="tagline">Debate with AI. Practice critical thinking. See both sides.</div>
 
-    <div class="section">
-        <h2>Start a New Debate</h2>
-        <textarea placeholder="Example: Should college be free?" rows="5"></textarea><br><br>
-        <button>Ask AI</button>
-    </div>
+        <!-- Tabs (these jump to sections on the page) -->
+        <nav class="tabs">
+            <a href="#home" class="tab home-tab">Home</a>
+            <a href="#start-debate" class="tab">Start Debate</a>
+            <a href="#explore" class="tab">Explore Debates</a>
+            <a href="#about" class="tab">About</a>
+        </nav>
+    </header>
 
-    <div class="section">
-        <h2>Current Debate</h2>
-        <p><strong>Topic:</strong> Is social media more harmful than helpful?</p>
-
-        <h3>AI's Position</h3>
+    <!-- HOME SECTION -->
+    <section id="home" class="section-card">
+        <h2>Welcome to DebAIt</h2>
         <p>
-            Social media may be more harmful due to misinformation, comparison culture, and
-            mental health effects, although it still provides communication and educational benefits.
+            DebAIt is a simple web app where you can debate with an AI, explore arguments
+            on both sides of an issue, and see what other users think.
         </p>
-    </div>
-
-    <div class="section">
-        <h3>Community Replies</h3>
+        <p>
+            Use the tabs above to:
+        </p>
         <ul>
-            <li>I agree — misinformation spreads way too fast.</li>
-            <li>But marginalized voices can be heard using social platforms.</li>
+            <li><strong>Start Debate</strong> – ask a question or choose a topic</li>
+            <li><strong>Explore Debates</strong> – browse example topics and arguments</li>
+            <li><strong>About</strong> – learn what DebAIt is and how it works</li>
         </ul>
+        <p class="small-text">
+            This is just the front-end. Later, we can connect it to an AI backend (Flask, Node, etc.).
+        </p>
+    </section>
 
-        <textarea placeholder="Add your reply..." rows="3"></textarea><br><br>
-        <button>Post Reply</button>
-    </div>
-</body>
+    <!-- START DEBATE SECTION -->
+    <section id="start-debate" class="section-card">
+        <h2>Start a Debate</h2>
+        <p>Type a topic or question you want to debate with the AI.</p>
+        <textarea placeholder="Example: Should college be free for all students?"></textarea>
+        <button>Ask AI (coming soon)</button>
+        <p class="small-text">
+            In the future, this button will send your question to the AI and show a response below.
+        </p>
+    </section>
 
+    <!-- EXPLORE DEBATES SECTION -->
+    <section id="explore" class="section-card">
+        <h2>Explore Debates</h2>
+        <p>Sample topics you might include in your app:</p>
+        <ul>
+            <li>Is social media more harmful than helpful?</li>
+            <li>Should school uniforms be required?</li>
+            <li>Are AI tutors better than human tutors?</li>
+            <li>Should homework be banned?</li>
+        </ul>
+        <p class="small-text">
+            Later, you can turn this into a dynamic list from a database or API.
+        </p>
+    </section>
+
+    <!-- ABOUT SECTION -->
+    <section id="about" class="section-card">
+        <h2>About DebAIt</h2>
+        <p>
+            DebAIt is a project that lets students and users debate real topics with an AI.
+            The goal is not to “win” but to:
+        </p>
+        <ul>
+            <li>Practice building logical arguments</li>
+            <li>See different perspectives</li>
+            <li>Improve critical thinking skills</li>
+        </ul>
+        <p class="small-text">
+            You can update this section with your names, project description, and any requirements
+            from your class or assignment.
+        </p>
+    </section>
+</div>
 </body>
 </html>
