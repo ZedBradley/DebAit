@@ -13,6 +13,16 @@ function StartDebate() {
   const [debateEnded, setDebateEnded] = useState(false);
   const [feedback, setFeedback] = useState("");
 
+  // track support/don't support
+  const [stance, setStance] = useState({}); // { round: "support" or "oppose" }
+
+  // ------------ WORD LIMIT ENFORCER ------------
+  function trimTo200Words(text) {
+    const words = text.split(/\s+/);
+    if (words.length <= 200) return text;
+    return words.slice(0, 200).join(" ") + "...";
+  }
+
   // ------------ AI REQUEST ------------
   async function askOpenAI(prompt) {
     const res = await fetch("https://api.openai.com/v1/chat/completions", {
@@ -28,7 +38,8 @@ function StartDebate() {
     });
 
     const data = await res.json();
-    return data.choices?.[0]?.message?.content || "";
+    const reply = data.choices?.[0]?.message?.content || "";
+    return trimTo200Words(reply);
   }
 
   // ------------ START DEBATE ------------
@@ -40,14 +51,15 @@ function StartDebate() {
     setThread([]);
     setRoundNumber(1);
     setFeedback("");
+    setStance({});
 
     const prompt = `
 You are an aggressive debate opponent. 
 ALWAYS argue against the user's position.
-Keep responses under 200 words.
+Your response MUST be under 200 words.
 
 The user says: "${question}"
-Respond as Round 1 – AI, arguing AGAINST the user's stance.
+Respond as Round 1 – AI, arguing AGAINST the user.
 `;
 
     setAiTyping(true);
@@ -64,14 +76,13 @@ Respond as Round 1 – AI, arguing AGAINST the user's stance.
     ]);
   }
 
-  // ------------ USER MOVE ------------
+  // ------------ USER ARGUMENT ------------
   async function submitUserArgument() {
     if (!userInput.trim()) return;
 
     const userText = userInput.trim();
     setUserInput("");
 
-    // Add user entry
     const newUserEntry = {
       id: Date.now(),
       round: roundNumber,
@@ -81,18 +92,18 @@ Respond as Round 1 – AI, arguing AGAINST the user's stance.
 
     setThread((prev) => [...prev, newUserEntry]);
 
-    // NEXT ROUND AI RESPONSE
+    // NEXT ROUND
     const nextRound = roundNumber + 1;
     setRoundNumber(nextRound);
 
     const aiPrompt = `
-Continue this debate. 
-Always argue directly AGAINST the user's newest argument.
+Continue the debate. 
+Always argue AGAINST the user's new argument.
+Response MUST be under 200 words.
 
 User argument: "${userText}"
 
 Respond as "Round ${nextRound} – AI".
-Keep it short (<150 words).
 `;
 
     setAiTyping(true);
@@ -109,7 +120,12 @@ Keep it short (<150 words).
     setThread((prev) => [...prev, newAiEntry]);
   }
 
-  // ------------ END DEBATE BUTTON ------------
+  // ------------ SUPPORT / DON'T SUPPORT SELECTION ------------
+  function chooseStance(round, choice) {
+    setStance((prev) => ({ ...prev, [round]: choice }));
+  }
+
+  // ------------ END DEBATE ------------
   async function endDebateNow() {
     setDebateEnded(true);
 
@@ -117,12 +133,11 @@ Keep it short (<150 words).
 
     const feedbackPrompt = `
 You are a debate judge.
-Give the user constructive feedback about their debate performance.
-Mention strengths, weaknesses, and how they can improve.
-Keep it under 200 words.
+Give the user constructive feedback on their debate.
+Mention strengths, weaknesses, and improvements.
+MUST be under 200 words.
 
-Here is the debate:
-
+Debate transcript:
 ${allText}
     `;
 
@@ -142,6 +157,7 @@ ${allText}
     setUserInput("");
     setFeedback("");
     setDebateEnded(false);
+    setStance({});
   }
 
   return (
@@ -187,7 +203,7 @@ ${allText}
             <div
               key={entry.id}
               style={{
-                marginBottom: "12px",
+                marginBottom: "14px",
                 background: entry.author === "AI" ? "#eef2ff" : "#ecfdf5",
                 padding: "12px",
                 borderRadius: "8px"
@@ -197,6 +213,39 @@ ${allText}
                 Round {entry.round} – {entry.author}
               </strong>
               <p>{entry.text}</p>
+
+              {/* SUPPORT / DON'T SUPPORT buttons ONLY under AI messages */}
+              {entry.author === "AI" && !debateEnded && (
+                <div style={{ marginTop: "10px", display: "flex", gap: "10px" }}>
+                  <button
+                    onClick={() => chooseStance(entry.round, "support")}
+                    style={{
+                      padding: "8px 12px",
+                      borderRadius: "8px",
+                      border: "none",
+                      cursor: "pointer",
+                      backgroundColor:
+                        stance[entry.round] === "support" ? "#22c55e" : "#bbf7d0"
+                    }}
+                  >
+                    Support
+                  </button>
+
+                  <button
+                    onClick={() => chooseStance(entry.round, "oppose")}
+                    style={{
+                      padding: "8px 12px",
+                      borderRadius: "8px",
+                      border: "none",
+                      cursor: "pointer",
+                      backgroundColor:
+                        stance[entry.round] === "oppose" ? "#ef4444" : "#fecaca"
+                    }}
+                  >
+                    Don’t Support
+                  </button>
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -216,7 +265,7 @@ ${allText}
         </div>
       )}
 
-      {/* FEEDBACK + END MESSAGE */}
+      {/* FEEDBACK */}
       {debateEnded && (
         <div
           style={{
