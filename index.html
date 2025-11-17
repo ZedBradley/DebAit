@@ -7,7 +7,7 @@
 </head>
 <body>
 <div class="page">
-    <header>
+        <header>
         <div class="logo">Deb<span>AI</span>t</div>
         <div class="tagline">Debate with AI. Practice critical thinking. See both sides.</div>
 
@@ -19,22 +19,69 @@
         </nav>
     </header>
 
+    <!-- Hero section -->
+    <section class="section-card hero">
+        <div class="hero-main">
+            <div class="badge">Academic tool · AI-assisted debating</div>
+            <h2>Welcome to DebAIt</h2>
+            <p class="hero-text">
+                DebAIt helps students practice argumentation by debating real topics with an AI.
+                Ask a question, see a structured response, and then build your own counterarguments.
+            </p>
+
+            <div class="hero-actions">
+                <a href="start.html" class="primary-link">Start a debate</a>
+                <a href="explore.html" class="secondary-link">Browse example topics</a>
+            </div>
+
+            <p class="small-text">
+                Designed for classrooms, study groups, and anyone who wants to sharpen critical thinking skills.
+            </p>
+        </div>
+
+        <div class="hero-side">
+            <h3>What can I do here?</h3>
+            <ul>
+                <li>🧠 Practice building clear arguments and rebuttals</li>
+                <li>📚 Explore common debate topics with pros & cons</li>
+                <li>✍️ Draft responses you can use in class or assignments</li>
+                <li>🤝 Compare your thinking to AI-generated perspectives</li>
+            </ul>
+        </div>
+    </section>
+
+    <!-- Quick overview cards -->
     <section class="section-card">
-        <h2>Welcome to DebAIt</h2>
-        <p>
-            DebAIt is a simple web app where you can debate with an AI, explore arguments
-            on both sides of an issue, and see what other users think.
-        </p>
-        <p>Use the navigation above to explore:</p>
-        <ul>
-            <li><strong>Start Debate</strong> – ask a question or choose a topic</li>
-            <li><strong>Explore Debates</strong> – browse example topics and arguments</li>
-            <li><strong>About</strong> – learn what DebAIt is and how it works</li>
-        </ul>
+        <h2>Get started in three steps</h2>
+
+        <div class="home-grid">
+            <div class="home-card">
+                <h3>1. Pick a question</h3>
+                <p>
+                    Use a topic from class or choose one from the Explore page.
+                    Keep it specific so the AI can give a focused response.
+                </p>
+            </div>
+
+            <div class="home-card">
+                <h3>2. Read the AI’s stance</h3>
+                <p>
+                    DebAIt will outline a position with reasoning. Treat it like
+                    a starting point, not the final answer.
+                </p>
+            </div>
+
+            <div class="home-card">
+                <h3>3. Build your own argument</h3>
+                <p>
+                    Use the response to agree, disagree, or refine your view.
+                    Add your own evidence, examples, and counterpoints.
+                </p>
+            </div>
+        </div>
+
         <p class="small-text">
-            This is just the front-end. Later, we can connect it to an AI backend (Flask, Node, etc.).
+            Tip: You can mention rubric words like <em>claim</em>, <em>evidence</em>, and
+            <em>counterargument</em> in your prompts to make DebAIt’s responses more structured.
         </p>
     </section>
-</div>
-</body>
-</html>
