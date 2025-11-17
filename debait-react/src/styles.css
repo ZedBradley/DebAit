@@ -637,6 +637,17 @@ body.dark .support-btn.selected.support-no {
   color: #020617;
 }
 
+/* === Dark mode: home step cards === */
+body.dark .home-card {
+  background: #111827; /* dark slate */
+  border-color: #4b5563;
+}
+
+body.dark .home-card h3,
+body.dark .home-card p {
+  color: #e5e7eb; /* light text */
+}
+
 
 /* === Responsive tweaks === */
 @media (max-width: 640px) {
